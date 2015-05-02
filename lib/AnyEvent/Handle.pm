@@ -55,7 +55,7 @@ package AnyEvent::Handle;
 use Scalar::Util ();
 use List::Util ();
 use Carp ();
-use Errno qw(EAGAIN EINTR);
+use Errno qw(EAGAIN EWOULDBLOCK EINTR);
 
 use AnyEvent (); BEGIN { AnyEvent::common_sense }
 use AnyEvent::Util qw(WSAEWOULDBLOCK);
@@ -973,7 +973,7 @@ sub _drain_wbuf {
                   && $self->{on_drain};
 
             delete $self->{_ww} unless length $self->{wbuf};
-         } elsif ($! != EAGAIN && $! != EINTR && $! != WSAEWOULDBLOCK) {
+         } elsif ($! != EAGAIN && $! != EINTR && $! != EWOULDBLOCK && $! != WSAEWOULDBLOCK) {
             $self->_error ($!, 1);
          }
       };
@@ -1572,7 +1572,8 @@ register_read_type line => sub {
 =item regex => $accept[, $reject[, $skip], $cb->($handle, $data)
 
 Makes a regex match against the regex object C<$accept> and returns
-everything up to and including the match.
+everything up to and including the match. All the usual regex variables
+($1, %+ etc.) from the regex match are available in the callback.
 
 Example: read a single line terminated by '\n'.
 
@@ -2040,7 +2041,7 @@ sub start_read {
             $self->{_eof} = 1;
             $self->_drain_rbuf;
 
-         } elsif ($! != EAGAIN && $! != EINTR && $! != WSAEWOULDBLOCK) {
+         } elsif ($! != EAGAIN && $! != EINTR && $! != EWOULDBLOCK && $! != WSAEWOULDBLOCK) {
             return $self->_error ($!, 1);
          }
       };
@@ -2306,7 +2307,7 @@ sub DESTROY {
 
          if ($len > 0) {
             substr $wbuf, 0, $len, "";
-         } elsif (defined $len || ($! != EAGAIN && $! != EINTR && $! != WSAEWOULDBLOCK)) {
+         } elsif (defined $len || ($! != EAGAIN && $! != EINTR && $! != EWOULDBLOCK && $! != WSAEWOULDBLOCK)) {
             @linger = (); # end
          }
       };
