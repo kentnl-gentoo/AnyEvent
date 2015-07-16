@@ -1032,6 +1032,10 @@ GLOBAL VARIABLES AND FUNCTIONS
         function, which can reduce typing, codesize and can reduce the
         logging overhead enourmously.
 
+    AnyEvent::fh_block $filehandle
+    AnyEvent::fh_unblock $filehandle
+        Sets blocking or non-blocking behaviour for the given filehandle.
+
 WHAT TO DO IN A MODULE
     As a module author, you should "use AnyEvent" and call AnyEvent methods
     freely, but you should not load a specific event module or rely on it.

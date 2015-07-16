@@ -32,8 +32,10 @@ AnyEvent::Handle - non-blocking I/O on streaming handles via AnyEvent
 
 =head1 DESCRIPTION
 
-This is a helper module to make it easier to do event-based I/O on
-stream-based filehandles (sockets, pipes, and other stream things).
+This is a helper module to make it easier to do event-based I/O
+on stream-based filehandles (sockets, pipes, and other stream
+things). Specifically, it doesn't work as expected on files, packet-based
+sockets or similar things.
 
 The L<AnyEvent::Intro> tutorial contains some well-documented
 AnyEvent::Handle examples.
@@ -93,7 +95,7 @@ The constructor supports these arguments (all as C<< key => value >> pairs).
 
 The filehandle this L<AnyEvent::Handle> object will operate on.
 NOTE: The filehandle will be set to non-blocking mode (using
-C<AnyEvent::Util::fh_nonblocking>) by the constructor and needs to stay in
+C<AnyEvent::fh_unblock>) by the constructor and needs to stay in
 that mode.
 
 =item connect => [$host, $service]      [C<fh> or C<connect> MANDATORY]
@@ -613,7 +615,7 @@ sub _start {
    Carp::croak "AnyEvent::Handle: only stream sockets supported, anything else will NOT work!"
       if Socket::SOCK_STREAM () != (unpack "I", $type) && defined $type;
 
-   AnyEvent::Util::fh_nonblocking $self->{fh}, 1;
+   AnyEvent::fh_unblock $self->{fh};
 
    $self->{_activity}  =
    $self->{_ractivity} =

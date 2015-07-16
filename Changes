@@ -9,6 +9,18 @@ TODO: AnyEvent::Handle with AnyEvent::IO?
 TODO: invalid. and localhost. specialcasing inside AEDNS and not AESocket (rfc6761)
 TODO: maybe implement env variable to give hosts precedence
 TODO: hosts always read? that's not expected
+TODO: more formats for parse_ipv6 (single ipv6 address without port, ...p80, ...#80)
+
+7.11 Thu Jul 16 14:36:00 CEST 2015
+	- AnyEvent::Socket::parse_ipv6 could accept malformed ipv6
+          addresses (extra "::" at end and similar cases).
+	- add a more explicit warning to AnyEvent::Handle that it doesn't
+          work on files, people keep getting confused.
+        - new function AnyEvent::Socket::tcp_bind.
+        - new functions AnyEvent::fh_block and AnyEvent::fh_unblock.
+	- aligned ipv6 address formatting with RFC 5952 (by not shortening
+          a single :0: to ::).
+        - added stability canary support.
 
 7.09 Sat May  2 16:38:53 CEST 2015
 	- AnyEvent::Debug called an internal function (AnyEvent::Log::ft)

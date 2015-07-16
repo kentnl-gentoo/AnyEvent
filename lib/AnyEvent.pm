@@ -1080,6 +1080,12 @@ creating a logger callback with the C<AnyEvent::Log::logger> function,
 which can reduce typing, codesize and can reduce the logging overhead
 enourmously.
 
+=item AnyEvent::fh_block $filehandle
+
+=item AnyEvent::fh_unblock $filehandle
+
+Sets blocking or non-blocking behaviour for the given filehandle.
+
 =back
 
 =head1 WHAT TO DO IN A MODULE
@@ -1250,7 +1256,7 @@ BEGIN {
 
 use Carp ();
 
-our $VERSION = '7.09';
+our $VERSION = 7.11;
 our $MODEL;
 our @ISA;
 our @REGISTRY;
@@ -1355,6 +1361,25 @@ sub _logger($;$) {
 
 if (length $ENV{PERL_ANYEVENT_LOG}) {
    require AnyEvent::Log; # AnyEvent::Log does the thing for us
+}
+
+BEGIN {
+   *_fh_nonblocking = AnyEvent::WIN32
+      ? sub($$) {
+          ioctl $_[0], 0x8004667e, pack "L", $_[1]; # FIONBIO
+        }
+      : sub($$) {
+          fcntl $_[0], AnyEvent::F_SETFL, $_[1] ? AnyEvent::O_NONBLOCK : 0;
+        }
+   ;
+}
+
+sub fh_block($) {
+   _fh_nonblocking shift, 0
+}
+
+sub fh_unblock($) {
+   _fh_nonblocking shift, 1
 }
 
 our @models = (

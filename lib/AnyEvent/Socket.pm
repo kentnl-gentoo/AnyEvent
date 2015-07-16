@@ -40,7 +40,7 @@ use Errno ();
 use Socket qw(AF_INET AF_UNIX SOCK_STREAM SOCK_DGRAM SOL_SOCKET SO_REUSEADDR);
 
 use AnyEvent (); BEGIN { AnyEvent::common_sense }
-use AnyEvent::Util qw(guard fh_nonblocking AF_INET6);
+use AnyEvent::Util qw(guard AF_INET6);
 use AnyEvent::DNS ();
 
 use base 'Exporter';
@@ -117,8 +117,8 @@ sub parse_ipv6($) {
       ($h, $t) = (undef, $h);
    }
 
-   my @h = split /:/, $h;
-   my @t = split /:/, $t;
+   my @h = split /:/, $h, -1;
+   my @t = split /:/, $t, -1;
 
    # check for ipv4 tail
    if (@t && $t[-1]=~ /\./) {
@@ -271,7 +271,7 @@ Example:
   print join ",", parse_hostport "[::1]";
   # => "," (empty list)
 
-  print join ",", parse_host_port "/tmp/debug.sock";
+  print join ",", parse_hostport "/tmp/debug.sock";
   # => "unix/", "/tmp/debug.sock"
 
 =cut
@@ -418,8 +418,7 @@ sub format_ipv6($) {
    or $ip =~ s/(?:^|:)     0:0:0:0:0 (?:$|:)/::/x
    or $ip =~ s/(?:^|:)       0:0:0:0 (?:$|:)/::/x
    or $ip =~ s/(?:^|:)         0:0:0 (?:$|:)/::/x
-   or $ip =~ s/(?:^|:)           0:0 (?:$|:)/::/x
-   or $ip =~ s/(?:^|:)             0 (?:$|:)/::/x;
+   or $ip =~ s/(?:^|:)           0:0 (?:$|:)/::/x;
 
    $ip
 }
@@ -1007,7 +1006,7 @@ sub tcp_connect($$$;$) {
          socket $state{fh}, $domain, $type, $proto
             or return $state{next}();
 
-         fh_nonblocking $state{fh}, 1;
+         AnyEvent::fh_unblock $state{fh};
          
          my $timeout = $prepare && $prepare->($state{fh});
 
@@ -1144,10 +1143,23 @@ Example: bind a server on a unix domain socket.
       my ($fh) = @_;
    };
 
+=item $guard = AnyEvent::Socket::tcp_bind $host, $service, $done_cb[, $prepare_cb]
+
+Same as C<tcp_server>, except it doesn't call C<accept> in a loop for you
+but simply passes the listen socket to the C<$done_cb>. This is useful
+when you want to have a convenient set up for your listen socket, but want
+to do the C<accept>'ing yourself, for example, in another process.
+
+In case of an error, C<tcp_bind> either croaks, or passes C<undef> to the
+C<$done_cb>.
+
+The guard only protects the set-up phase, it isn't used after C<$done_cb>
+has been invoked.
+
 =cut
 
-sub tcp_server($$$;$) {
-   my ($host, $service, $accept, $prepare) = @_;
+sub _tcp_bind($$$;$) {
+   my ($host, $service, $done, $prepare) = @_;
 
    $host = $AnyEvent::PROTOCOL{ipv4} < $AnyEvent::PROTOCOL{ipv6} && AF_INET6
            ? "::" : "0"
@@ -1193,7 +1205,7 @@ sub tcp_server($$$;$) {
       };
    }
 
-   fh_nonblocking $state{fh}, 1;
+   AnyEvent::fh_unblock $state{fh};
 
    my $len;
 
@@ -1207,19 +1219,37 @@ sub tcp_server($$$;$) {
    listen $state{fh}, $len
       or Carp::croak "listen: $!";
 
-   $state{aw} = AE::io $state{fh}, 0, sub {
-      # this closure keeps $state alive
-      while ($state{fh} && (my $peer = accept my $fh, $state{fh})) {
-         fh_nonblocking $fh, 1; # POSIX requires inheritance, the outside world does not
-
-         my ($service, $host) = unpack_sockaddr $peer;
-         $accept->($fh, format_address $host, $service);
-      }
-   };
+   $done->(\%state);
 
    defined wantarray
       ? guard { %state = () } # clear fh and watcher, which breaks the circular dependency
       : ()
+}
+
+sub tcp_bind($$$;$) {
+   my ($host, $service, $done, $prepare) = @_;
+
+   _tcp_bind $host, $service, sub {
+      $done->(delete shift->{fh});
+   }, $prepare
+}
+
+sub tcp_server($$$;$) {
+   my ($host, $service, $accept, $prepare) = @_;
+
+   _tcp_bind $host, $service, sub {
+      my $rstate = shift;
+
+      $rstate->{aw} = AE::io $rstate->{fh}, 0, sub {
+         # this closure keeps $state alive
+         while ($rstate->{fh} && (my $peer = accept my $fh, $rstate->{fh})) {
+            AnyEvent::fh_unblock $fh; # POSIX requires inheritance, the outside world does not
+
+            my ($service, $host) = unpack_sockaddr $peer;
+            $accept->($fh, format_address $host, $service);
+         }
+      };
+   }, $prepare
 }
 
 =item tcp_nodelay $fh, $enable

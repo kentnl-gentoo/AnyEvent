@@ -1,6 +1,7 @@
 use ExtUtils::MakeMaker;
 
-use 5.008001; # AnyEvent perl event loop seems to work with 5.6, other modules not
+# AnyEvent perl event loop seems to work with 5.6, other modules not
+eval 'use Canary::Stability AnyEvent => 1, 5.008001';
 
 print <<EOF;
 
@@ -37,6 +38,7 @@ WriteMakefile(
 #    PREREQ_PM    => {
 #       Task::Weaken => 0,
 #    },
+    CONFIGURE_REQUIRES => { "ExtUtils::MakeMaker" => 6.52, "Canary::Stability" => 0 },
     META_MERGE => {
         recommends => {
            "Task::Weaken"     => 0,

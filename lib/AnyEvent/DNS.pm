@@ -812,7 +812,7 @@ sub new {
    if (socket my $fh4, AF_INET , Socket::SOCK_DGRAM(), 0) {
       ++$got_socket;
 
-      AnyEvent::Util::fh_nonblocking $fh4, 1;
+      AnyEvent::fh_unblock $fh4;
       $self->{fh4} = $fh4;
       $self->{rw4} = AE::io $fh4, 0, sub {
          if (my $peer = recv $fh4, my $pkt, MAX_PKT, 0) {
@@ -825,7 +825,7 @@ sub new {
       ++$got_socket;
 
       $self->{fh6} = $fh6;
-      AnyEvent::Util::fh_nonblocking $fh6, 1;
+      AnyEvent::fh_unblock $fh6;
       $self->{rw6} = AE::io $fh6, 0, sub {
          if (my $peer = recv $fh6, my $pkt, MAX_PKT, 0) {
             $wself->_recv ($pkt, $peer);

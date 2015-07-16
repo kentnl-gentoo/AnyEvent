@@ -128,7 +128,7 @@ sub shell($$) {
             while ($rbuf =~ s/^(.*)\015?\012//) {
                my $line = $1;
 
-               AnyEvent::Util::fh_nonblocking $fh, 0;
+               AnyEvent::fh_block $fh;
 
                if ($line =~ /^\s*exit\b/) {
                   syswrite $fh, "sorry, no... if you want to execute exit, try CORE::exit.\015\012";
@@ -175,7 +175,7 @@ sub shell($$) {
                }
 
                syswrite $fh, "> ";
-               AnyEvent::Util::fh_nonblocking $fh, 1;
+               AnyEvent::fh_unblock $fh;
             }
          }
       };

@@ -354,17 +354,13 @@ Sets the blocking state of the given filehandle (true == nonblocking,
 false == blocking). Uses fcntl on anything sensible and ioctl FIONBIO on
 broken (i.e. windows) platforms.
 
+Instead of using this function, you could use C<AnyEvent::fh_block> or
+C<AnyEvent::fh_unblock>.
+
 =cut
 
 BEGIN {
-   *fh_nonblocking = AnyEvent::WIN32
-      ? sub($$) {
-          ioctl $_[0], 0x8004667e, pack "L", $_[1]; # FIONBIO
-        }
-      : sub($$) {
-          fcntl $_[0], AnyEvent::F_SETFL, $_[1] ? AnyEvent::O_NONBLOCK : 0;
-        }
-   ;
+   *fh_nonblocking = \&AnyEvent::_fh_nonblocking;
 }
 
 =item $guard = guard { CODE }
