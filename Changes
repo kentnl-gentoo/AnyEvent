@@ -8,8 +8,16 @@ TODO: FAQ: scope-ids? hosts file order?
 TODO: AnyEvent::Handle with AnyEvent::IO?
 TODO: invalid. and localhost. specialcasing inside AEDNS and not AESocket (rfc6761)
 TODO: maybe implement env variable to give hosts precedence
-TODO: hosts always read? that's not expected
 TODO: more formats for parse_ipv6 (single ipv6 address without port, ...p80, ...#80)
+
+TODO: inet_aton maybe pack C4? no, add a comment why not
+TODO: hosts read multiple times for initial concurrent tcp_connect's?
+
+7.12 Wed Jan 27 19:12:26 CET 2016
+	- use common name as hostname for tls connects, if Net::SSLeay
+          supports SNI.
+        - fix documentation of tls_autostart read type in AnyEvent::Handle,
+          analyzed by Felix Ostmann.
 
 7.11 Thu Jul 16 14:36:00 CEST 2015
 	- AnyEvent::Socket::parse_ipv6 could accept malformed ipv6

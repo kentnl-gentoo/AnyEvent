@@ -1256,7 +1256,7 @@ BEGIN {
 
 use Carp ();
 
-our $VERSION = 7.11;
+our $VERSION = 7.12;
 our $MODEL;
 our @ISA;
 our @REGISTRY;
@@ -2493,7 +2493,7 @@ anything about events.
       ...
    });
 
-   EV::loop;
+   EV::run;
 
 3b. The module user could use AnyEvent, too:
 

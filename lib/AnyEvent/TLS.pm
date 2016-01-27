@@ -842,6 +842,10 @@ sub _get_session($$;$$) {
 
    } elsif ($mode eq "connect") {
       $session = Net::SSLeay::new ($self->{ctx});
+
+      Net::SSLeay::set_tlsext_host_name ($session, $cn)
+         if defined &Net::SSLeay::set_tlsext_host_name;
+
       Net::SSLeay::set_connect_state ($session);
 
       Net::SSLeay::set_options ($session, eval { Net::SSLeay::OP_NO_TICKET () })

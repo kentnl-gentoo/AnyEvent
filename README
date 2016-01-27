@@ -1610,7 +1610,7 @@ REAL-WORLD EXAMPLE
           ...
        });
 
-       EV::loop;
+       EV::run;
 
     3b. The module user could use AnyEvent, too:
 

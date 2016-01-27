@@ -485,6 +485,12 @@ Redirects program standard output into the specified filename, similar to C<<
 Appends program standard output to the referenced scalar. The condvar will
 not be signalled before EOF or an error is signalled.
 
+Specifying the same scalar in multiple ">" pairs is allowed, e.g. to
+redirect both stdout and stderr into the same scalar:
+
+    ">"  => \$output,
+    "2>" => \$output,
+
 =item ">" => $filehandle
 
 Redirects program standard output to the given filehandle (or actually its

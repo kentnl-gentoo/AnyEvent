@@ -1897,7 +1897,7 @@ accomodate protocol changes.
 This read type does not rely on L<AnyEvent::TLS> (and thus, not on
 L<Net::SSLeay>).
 
-=item tls_autostart => $tls[, $tls_ctx]
+=item tls_autostart => [$tls_ctx, ]$tls
 
 Tries to detect a valid SSL or TLS handshake. If one is detected, it tries
 to start tls by calling C<starttls> with the given arguments.
@@ -1911,7 +1911,7 @@ See C<tls_detect> above for more details.
 Example: give the client a chance to start TLS before accepting a text
 line.
 
-   $hdl->push_read (tls_detect => "accept");
+   $hdl->push_read (tls_autostart => "accept");
    $hdl->push_read (line => sub {
       print "received ", ($_[0]{tls} ? "encrypted" : "cleartext"), " <$_[1]>\n";
    });
