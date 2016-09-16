@@ -847,14 +847,18 @@ C<croak> have been called.
 
 =item $cb = $cv->cb ($cb->($cv))
 
-This is a mutator function that returns the callback set and optionally
-replaces it before doing so.
+This is a mutator function that returns the callback set (or C<undef> if
+not) and optionally replaces it before doing so.
 
 The callback will be called when the condition becomes "true", i.e. when
 C<send> or C<croak> are called, with the only argument being the
 condition variable itself. If the condition is already true, the
 callback is called immediately when it is set. Calling C<recv> inside
 the callback or at any later time is guaranteed not to block.
+
+Additionally, when the callback is invoked, it is also removed from the
+condvar (reset to C<undef>), so the condvar does not keep a reference to
+the callback after invocation.
 
 =back
 
@@ -1256,7 +1260,7 @@ BEGIN {
 
 use Carp ();
 
-our $VERSION = 7.12;
+our $VERSION = 7.13;
 our $MODEL;
 our @ISA;
 our @REGISTRY;

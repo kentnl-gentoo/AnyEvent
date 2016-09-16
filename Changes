@@ -13,6 +13,21 @@ TODO: more formats for parse_ipv6 (single ipv6 address without port, ...p80, ...
 TODO: inet_aton maybe pack C4? no, add a comment why not
 TODO: hosts read multiple times for initial concurrent tcp_connect's?
 
+7.13 Sat Sep 17 04:31:49 CEST 2016
+	- Only call tlsext_host_name for non-empty common names (reported
+          by Maxime Soulé).
+        - log a (single) notice message if SNI is not supported.
+        - upgrade to UTS-46:9.0.0 draft and switch to non-transitional
+          behaviour, beating thunderbird, ie, edge, chrome and safari to it :)
+          (see also https://bugzilla.mozilla.org/show_bug.cgi?id=1218179)
+        - turns out the UTS-46 IDNA testcase failures were indeed bugs in the
+          testcases and the specification and not in the code - the post-9.0.0
+          unicode files have all known problems fixed, so finally the AnyEvent
+          IDNA implementation can pass the full IDNA testsuite - without needing
+          a single fix :)
+        - guarantee (and document) that condvar callbacks will be removed
+          on invocation - important to avoid circular references.
+
 7.12 Wed Jan 27 19:12:26 CET 2016
 	- use common name as hostname for tls connects, if Net::SSLeay
           supports SNI.

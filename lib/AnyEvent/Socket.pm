@@ -145,7 +145,7 @@ sub parse_ipv6($) {
 
 =item $token = parse_unix $hostname
 
-This fucntion exists mainly for symmetry to the other C<parse_protocol>
+This function exists mainly for symmetry to the other C<parse_protocol>
 functions - it takes a hostname and, if it is C<unix/>, it returns a
 special address token, otherwise C<undef>.
 
